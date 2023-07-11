@@ -2,7 +2,7 @@ pipeline {
   agent any
   tools {
   
-  maven 'maven'
+  maven 'Maven'
    
   }
     stages {
@@ -40,22 +40,22 @@ pipeline {
             steps {
                 rtServer (
                     id: "jfrog",
-                    url: "http://3.238.35.39:8082/artifactory",
+                    url: "http://44.213.18.133:8082/artifactory",
                     credentialsId: "jfrog"
                 )
 
                 rtMavenDeployer (
                     id: "MAVEN_DEPLOYER",
                     serverId: "jfrog",
-                    releaseRepo: "classwork1-libs-release-local",
-                    snapshotRepo: "classwork1-libs-snapshot-local"
+                    releaseRepo: "jan-devops-libs-release-local",
+                    snapshotRepo: "jan-devops-libs-snapshot-local"
                 )
 
                 rtMavenResolver (
                     id: "MAVEN_RESOLVER",
                     serverId: "jfrog",
-                    releaseRepo: "classwork1-libs-release",
-                    snapshotRepo: "classwork1-libs-snapshot"
+                    releaseRepo: "jan-devops-libs-release",
+                    snapshotRepo: "jan-devops-libs-snapshot"
                 )
             }
     }
@@ -85,8 +85,8 @@ pipeline {
             steps {
                   sshagent(['sshkey']) {
                        
-                        sh "scp -o StrictHostKeyChecking=no dockerfile ubuntu@18.206.173.255:/home/ubuntu"
-                        sh "scp -o StrictHostKeyChecking=no create-container-image.yaml ubuntu@18.206.173.255:/home/ubuntu"
+                        sh "scp -o StrictHostKeyChecking=no dockerfile ubuntu@52.202.178.144:/home/ubuntu"
+                        sh "scp -o StrictHostKeyChecking=no devops.yaml ubuntu@52.202.178.144:/home/ubuntu"
                     }
                 }
             
@@ -96,7 +96,7 @@ pipeline {
             steps {
                  withCredentials([sshUserPrivateKey(credentialsId: "ssh_agent", keyFileVariable: 'keyfile')]){
                        
-                        sh "ssh -i ${keyfile} -o StrictHostKeyChecking=no ubuntu@18.206.173.255 -C \"ansible-playbook -i hosts playbook1.yaml\""
+                        sh "ssh -i ${keyfile} -o StrictHostKeyChecking=no ubuntu@52.202.178.144 -C \"ansible-playbook -i hosts devops.yaml\""
                         
                     }
                 }
