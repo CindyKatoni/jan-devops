@@ -2,7 +2,7 @@ pipeline {
   agent any
   tools {
   
-  maven 'MAVEN_HOME'
+  maven 'Maven'
    
   }
     stages {
@@ -63,7 +63,7 @@ pipeline {
     stage ('Deploy Artifacts') {
             steps {
                 rtMavenRun (
-                    tool: "maven", // Tool name from Jenkins configuration
+                    tool: "Maven", // Tool name from Jenkins configuration
                     pom: 'webapp/pom.xml',
                     goals: 'clean install',
                     deployerId: "MAVEN_DEPLOYER",
@@ -83,7 +83,7 @@ pipeline {
     stage('Copy Dockerfile & Playbook to Ansible Server') {
             
             steps {
-                  sshagent(['sshkey']) {
+                  ssh_agent(['sshkey']) {
                        
                         sh "scp -o StrictHostKeyChecking=no dockerfile ubuntu@52.202.178.144:/home/ubuntu"
                         sh "scp -o StrictHostKeyChecking=no devops.yaml ubuntu@52.202.178.144:/home/ubuntu"
