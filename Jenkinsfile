@@ -83,7 +83,7 @@ pipeline {
     stage('Copy Dockerfile & Playbook to Ansible Server') {
             
             steps {
-                  ssh_agent(['sshkey']) {
+                  sshagent(['sshkey']) {
                        
                         sh "scp -o StrictHostKeyChecking=no dockerfile ubuntu@52.202.178.144:/home/ubuntu"
                         sh "scp -o StrictHostKeyChecking=no devops.yaml ubuntu@52.202.178.144:/home/ubuntu"
