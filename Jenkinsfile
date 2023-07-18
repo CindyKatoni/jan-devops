@@ -80,50 +80,40 @@ pipeline {
         }
     }
 
-    stage('Copy Dockerfile & Playbook to Ansible Server') {
-            
-            steps {
-                  sshagent(['sshkey']) {
-                       
-                        sh "scp -o StrictHostKeyChecking=no dockerfile ubuntu@52.202.178.144:/home/ubuntu"
-                        sh "scp -o StrictHostKeyChecking=no devops.yaml ubuntu@52.202.178.144:/home/ubuntu"
-                    }
-                }
-            
-        } 
-    stage('Build Container Image') {
-            
+   // stage('Copy Dockerfile & Playbook to Ansible Server') {
+           // steps {
+                  //sshagent(['sshkey']) {
+                       // sh "scp -o StrictHostKeyChecking=no dockerfile ubuntu@52.202.178.144:/home/ubuntu"
+                      //  sh "scp -o StrictHostKeyChecking=no devops.yaml ubuntu@52.202.178.144:/home/ubuntu"
+                    //}
+               // }
+        //} 
+  
+stage('Build Container Image') { 
             steps {
                  withCredentials([sshUserPrivateKey(credentialsId: "ssh_agent", keyFileVariable: 'keyfile')]){
                        
                         sh "ssh -i ${keyfile} -o StrictHostKeyChecking=no ubuntu@52.202.178.144 -C \"ansible-playbook -i hosts devops.yaml\""
-                        
                     }
                 }
-            
         } 
-    stage('Copy Deployent & Service Defination to K8s Master') {
-            
+	    
+    stage('Copy Deployent & Service Defination to K8s Master') {   
             steps {
                   withCredentials([sshUserPrivateKey(credentialsId: "ssh_agent", keyFileVariable: 'keyfile')]){
-                       
                         sh "scp -i ${keyfile} -o StrictHostKeyChecking=no deployment.yaml ubuntu@18.206.173.255:/home/ubuntu"
                         sh "scp -i ${keyfile} -o StrictHostKeyChecking=no service.yaml ubuntu@18.206.173.255:/home/ubuntu"
                     }
                 }
-            
         } 
 
     stage('Waiting for Approvals') {
-            
         steps{
-
 				input('Test Completed ? Please provide  Approvals for Prod Release ?')
 			  }
-            
     }     
+	    
     stage('Copy and Deploy on Production') {
-            
             steps {
                   withCredentials([sshUserPrivateKey(credentialsId: "ssh_agent", keyFileVariable: 'keyfile')]){
                         sh"""
@@ -132,12 +122,9 @@ pipeline {
                         ssh -i ${keyfile} -o StrictHostKeyChecking=no ubuntu@54.236.58.176 -C \"kubectl apply -f deployment.yaml\"
                         ssh -i ${keyfile} -o StrictHostKeyChecking=no ubuntu@54.236.58.176 -C \"kubectl apply -f service.yaml\"
                         """
-                        
                     }
                 }
-            
         } 
-         
    } 
 }
 
