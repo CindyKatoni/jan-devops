@@ -89,14 +89,15 @@ pipeline {
                 }
         } 
   
-stage('Build Container Image') { 
+ stage('Build Container Image') {
+            
             steps {
-                 withCredentials([sshUserPrivateKey(credentialsId: "ssh_agent", keyFileVariable: 'keyfile')]){
-                       
-                        sh "ssh -i ${keyfile} -o StrictHostKeyChecking=no ubuntu@52.202.178.144 -C \"ansible-playbook -i hosts devops.yaml\""
+                  sshagent(['ssh_key']) {
+                        sh "ssh -i Itern-KP.pem -o StrictHostKeyChecking=no ubuntu@52.202.178.144 -C \"ansible-playbook  -vvv -e build_number=${BUILD_NUMBER} devops.yaml\""
                     }
                 }
         } 
+	    
 	    
     stage('Copy Deployent & Service Defination to K8s Master') {   
             steps {
