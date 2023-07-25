@@ -81,10 +81,12 @@ pipeline {
     }
 
     stage('Copy Dockerfile & Playbook to Ansible Server') {
-            steps {
-                  sshagent(['sshkey']) {
-                        sh "scp -o StrictHostKeyChecking=no dockerfile ubuntu@52.202.178.144:/home/ubuntu"
-                        sh "scp -o StrictHostKeyChecking=no devops.yaml ubuntu@52.202.178.144:/home/ubuntu"
+            sshagent(['ssh_agent']) {
+                        sh "chmod 400  Itern-KP.pem"
+                        sh "ls -lah"
+                	sh "scp -i Itern-KP.pem -o StrictHostKeyChecking=no Dockerfile ubuntu@52.202.178.144:/home/ubuntu"
+                        sh "scp -i Itern-KP.pem -o StrictHostKeyChecking=no dockerfile ubuntu@52.202.178.144:/home/ubuntu"
+                        sh "scp -i Itern-KP.pem -o StrictHostKeyChecking=no devops.yaml ubuntu@52.202.178.144:/home/ubuntu"
                     }
                 }
         } 
