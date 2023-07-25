@@ -81,7 +81,8 @@ pipeline {
     }
 
     stage('Copy Dockerfile & Playbook to Ansible Server') {
-            sshagent(['ssh_agent']) {
+            steps {
+	    sshagent(['ssh_agent']) {
                         sh "chmod 400  Itern-KP.pem"
                         sh "ls -lah"
                 	sh "scp -i Itern-KP.pem -o StrictHostKeyChecking=no Dockerfile ubuntu@52.202.178.144:/home/ubuntu"
