@@ -102,35 +102,38 @@ pipeline {
         } 
 	    
 	    
-    stage('Copy Deployent & Service Defination to K8s Master') {   
+    stage('Copy Deployment & Service Defination to K8s Master') {
+            
             steps {
-                  withCredentials([sshUserPrivateKey(credentialsId: "ssh_agent", keyFileVariable: 'keyfile')]){
-                        sh "scp -i ${keyfile} -o StrictHostKeyChecking=no deployment.yaml ubuntu@18.206.173.255:/home/ubuntu"
-                        sh "scp -i ${keyfile} -o StrictHostKeyChecking=no service.yaml ubuntu@18.206.173.255:/home/ubuntu"
+                  sshagent(['ssh_key']) {
+                        sh "scp -i Itern-KP.pem -o StrictHostKeyChecking=no deploy.yml ubuntu@18.205.98.141:/home/ubuntu"
+                        sh "scp -i Itern-KP.pem -o StrictHostKeyChecking=no service.yml ubuntu@18.205.98.141:/home/ubuntu"
                     }
                 }
+            
         } 
 
     stage('Waiting for Approvals') {
+            
         steps{
+
 				input('Test Completed ? Please provide  Approvals for Prod Release ?')
 			  }
+            
     }     
-	    
-    stage('Copy and Deploy on Production') {
+    stage('Deploy Artifacts to Production') {
+            
             steps {
-                  withCredentials([sshUserPrivateKey(credentialsId: "ssh_agent", keyFileVariable: 'keyfile')]){
-                        sh"""
-                        scp -i ${keyfile} -o StrictHostKeyChecking=no deployment.yaml ubuntu@54.236.58.176:/home/ubuntu
-                        scp -i ${keyfile} -o StrictHostKeyChecking=no service.yaml ubuntu@54.236.58.176:/home/ubuntu
-                        ssh -i ${keyfile} -o StrictHostKeyChecking=no ubuntu@54.236.58.176 -C \"kubectl apply -f deployment.yaml\"
-                        ssh -i ${keyfile} -o StrictHostKeyChecking=no ubuntu@54.236.58.176 -C \"kubectl apply -f service.yaml\"
-                        """
+                  sshagent(['ssh_key']) {
+                        sh "ssh -i Itern-KP.pem -o StrictHostKeyChecking=no ubuntu@18.205.98.141 -C \"kubectl set image deployment/itern-deploy iterncon=adegokeobafemi/lab:${BUILD_NUMBER}\""
+                       //sh "ssh -i Itern-KP.pem -o StrictHostKeyChecking=no ubuntu@18.205.98.141 -C \"kubectl delete pod itern-deploy\""
+                        sh "ssh -i Itern-KP.pem -o StrictHostKeyChecking=no ubuntu@18.205.98.141 -C \"kubectl apply -f deploy.yml\""
+                        sh "ssh -i Itern-KP.pem -o StrictHostKeyChecking=no ubuntu@18.205.98.141 -C \"kubectl apply -f service.yml\""
+                        
                     }
                 }
+            
         } 
+         
    } 
 }
-
-
-
